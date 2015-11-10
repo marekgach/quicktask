@@ -1,5 +1,5 @@
 doctrine:
-    user: root
+    user: quicktask
     password: test
     dbname: quicktask
 

@@ -13,8 +13,12 @@ class TaskPresenter extends BasePresenter
     public $taskRepository;
     /** @var \App\Factories\Modal\IInsertTaskGroupFactory @inject */
     public $insertTaskGroupFactory;
+    /** @var \App\Factories\Modal\IChangeTaskGroupFactory @inject */
+    public $changeTaskGroupFactory;
     /** @var \App\Factories\Form\IInsertTaskFactory @inject */
     public $insertTaskFactory;
+    /** @var \App\Factories\Form\IFilterTaskFactory @inject */
+    public $filterTaskFactory;
     /** @var number */
     protected $idTaskGroup;
 
@@ -37,11 +41,21 @@ class TaskPresenter extends BasePresenter
     }
 
     /**
+     * @param int $id
+     */
+    public function handleChangeTaskState($id, $stav)
+    {
+        
+        $task = $this->taskRepository->setState($id, $stav);
+    }
+
+    /**
      * @param number $idTaskGroup
      */
     public function renderTaskGroup($idTaskGroup)
     {
         $this->idTaskGroup = $idTaskGroup;
+        $this->template->idTaskGroup = $idTaskGroup;
         $this->template->tasks = $this->getTasks($idTaskGroup);
     }
 
@@ -55,11 +69,30 @@ class TaskPresenter extends BasePresenter
     }
 
     /**
+     * @return \App\Components\Modal\ChangeTaskGroup
+     */
+    protected function createComponentChangeTaskGroupModal()
+    {
+        $control = $this->changeTaskGroupFactory->create();
+        return $control;
+    }
+
+    /**
      * @return \App\Components\Form\InsertTask
      */
     protected function createComponentInsertTaskForm()
     {
         $control = $this->insertTaskFactory->create();
+        $control->setTaskGroupId($this->idTaskGroup);
+        return $control;
+    }
+
+    /**
+     * @return \App\Components\Form\FilterTask
+     */
+    protected function createComponentFilterTaskForm()
+    {
+        $control = $this->filterTaskFactory->create();
         $control->setTaskGroupId($this->idTaskGroup);
         return $control;
     }
@@ -86,8 +119,11 @@ class TaskPresenter extends BasePresenter
      */
     protected function getTasks($idTaskGroup)
     {
+        $searchSession = $this->getSession('serach');
+        $word = $searchSession->searchString;
+
         $result = array();
-        $tasks = $this->taskRepository->getByTaskGroup($idTaskGroup);
+        $tasks = $this->taskRepository->getByTaskGroup($idTaskGroup, $word);
         foreach ($tasks as $task) {
             $item = array();
             $item['id'] = $task->getId();

@@ -8,7 +8,7 @@ use App\Model\Repository\TaskGroupRepository;
 use Nette\Application\UI\Control;
 use Nette\Application\UI\Form;
 
-class InsertTask extends Control
+class FilterTask extends Control
 {
     /** @var TaskRepository*/
     public $taskRepository;
@@ -31,7 +31,7 @@ class InsertTask extends Control
     public function render()
     {
         $template = $this->template;
-        $template->setFile(__DIR__ . '/templates/InsertTask.latte');
+        $template->setFile(__DIR__ . '/templates/FilterTask.latte');
         $template->render();
     }
 
@@ -44,32 +44,21 @@ class InsertTask extends Control
     }
 
     /**
-     * @param int $id
-     */
-    public function handleDeleteTaskGroup($id)
-    {
-        $this->taskGroupRepository->delete($id);
-        if ($this->isAjax()) {
-            $this->redrawControl('taskGroups');
-        } else {
-            $this->redirect('this');
-        }
-    }
-
-    /**
      * @return Form
      */
-    protected function createComponentInsertTaskForm()
+    protected function createComponentFilterTaskForm()
     {
+
+        $searchSession = $this->presenter->getSession('serach');
+        $word = $searchSession->searchString;
+
         $form = new Form();
-        $form->getElementPrototype()->class('newTaskForm');
-        $form->addText('name', 'Name')
-            ->setRequired('Please fill task name');
-        $form->addText('date', 'Date')
-            ->setRequired('Please fill task date');
+        $form->getElementPrototype()->class('newTaskForm ajax');
+        $form->addText('search', 'Search')
+             ->setDefaultValue($word);
         $form->addHidden('idTaskGroup', $this->idTaskGroup);
-        $form->addSubmit('submit', 'Add');
-        $form->onSuccess[] = array($this, 'insertTaskFromSuccess');
+        $form->addSubmit('submit', 'Filtruj');
+        $form->onSuccess[] = array($this, 'filterTaskFromSuccess');
         return $form;
     }
 
@@ -77,16 +66,12 @@ class InsertTask extends Control
      * @param Form $form
      * @param $values
      */
-    public function insertTaskFromSuccess(Form $form, $values)
+    public function filterTaskFromSuccess(Form $form, $values)
     {
-        $taskGroup = $this->taskGroupRepository->getById($values->idTaskGroup);
+        
+        $searchSession = $this->presenter->getSession('serach');
+        $searchSession->searchString = $values->search;
 
-        $taskEntity = new Task();
-        $taskEntity->setName($values->name);
-        $taskEntity->setDate($values->date);
-        $taskEntity->setTaskGroup($taskGroup);
-        $this->taskRepository->insert($taskEntity);
-        $this->presenter->flashMessage('Task was created', 'success');
         if ($this->presenter->isAjax()) {
             $this->presenter->redrawControl('tasks');
         } else {

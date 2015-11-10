@@ -2,3 +2,11 @@ span.error-message {
     color: #a94442;
     font-weight: bold;
 }
+.row {
+	margin-bottom: 10px;
+}
+.katRight {
+	float: right;
+	height: 22px;
+	padding: 0 12px !important;
+}

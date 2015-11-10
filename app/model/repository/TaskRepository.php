@@ -25,12 +25,42 @@ class TaskRepository extends AbstractRepository
     }
 
     /**
+     * @param number $id
+     * @return Entity\Task|null
+     */
+    public function getStateById($id)
+    {
+        return $this->task->find($id);
+    }
+
+    /**
      * @param number $idTaskGroup
      * @return Entity\Task[]
      */
-    public function getByTaskGroup($idTaskGroup)
+    public function getByTaskGroup($idTaskGroup, $word = "")
     {
-        return $this->task->findBy(array('taskGroup' => $idTaskGroup));
+
+        $q = $this->task->createQueryBuilder('t')
+            ->where('t.taskGroup = '.$idTaskGroup)
+            ->andWhere('t.name LIKE :name')
+            ->setParameter('name', '%'.$word.'%')
+            ->orderBy('t.date', 'DESC')
+            ->getQuery();
+        $tasks = $q->getResult();
+        return $tasks; 
+        
+    }
+
+    /**
+     * @param number $id
+     * @param number $state
+     */
+    public function setState($id, $state)
+    {
+        $task = $this->task->find($id);
+        $task->setCompleted($state);
+        
+        $this->entityManager->flush();
     }
 
     /**
