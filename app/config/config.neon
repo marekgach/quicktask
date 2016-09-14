@@ -20,7 +20,9 @@ services:
     - App\Model\Repository\TaskGroupRepository
     - App\Model\Repository\TaskRepository
     - App\Factories\Modal\IInsertTaskGroupFactory
+    - App\Factories\Modal\IChangeTaskGroupFactory
     - App\Factories\Form\IInsertTaskFactory
+    - App\Factories\Form\IFilterTaskFactory
 
 extensions:
     console: Kdyby\Console\DI\ConsoleExtension

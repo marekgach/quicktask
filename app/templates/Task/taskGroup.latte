@@ -1,20 +1,32 @@
 {block content}
-    {control insertTaskForm}
     <div class="row">
+        <div class="col-md-12">
+            {control filterTaskForm}
+        </div>
+    </div>
+    <div class="row top-buffer">
         <div class="col-md-12">
             {snippet tasks}
                 <ul class="list-group">
                     {foreach $tasks as $task}
                         <li class="list-group-item">
-                            <input type="checkbox" />
+                            <input id="{$task['id']}" class="taskCheck" type="checkbox" {if $task['completed'] == 1 }checked{/if} />
                             <span>{$task['name']}</span>
                             <span class="label label-info">{$task['date']|date:'d.m.Y'}</span>
+                            <button class="btn btn-warning katRight" data-toggle="modal" data-id="{$idTaskGroup}-{$task['id']}" data-target="#changeTaskGroupModal">Kategorie</button>
                         </li>
                     {/foreach}
                 </ul>
             {/snippet}
         </div>
     </div>
+    <div class="row">
+        <div class="col-md-12">
+            {control insertTaskForm}
+        </div>
+    </div>
+
+    {control changeTaskGroupModal}
 {/block}
 
 {block scripts}
