@@ -2,7 +2,9 @@ $(document).ready(function(){
     $.nette.init();
 
     function bindICheck(){
-        $('input').iCheck({
+        var input = $('input');
+        input.iCheck('destroy');
+        input.iCheck({
             handle: 'checkbox',
             checkboxClass: 'icheckbox_flat-blue'
         });
@@ -11,23 +13,35 @@ $(document).ready(function(){
     function bindHandleCheckbox() {
         $('input[type=checkbox].handle').on('ifChecked', function (e) {
             var link = $(this).data('link');
-            $.nette.ajax(link);
+            var bound = $(this).data('handle-bound');
+            if(!bound){
+                $.nette.ajax(link);
+                $(this).data('handle-bound', 1);
+            }
         });
     }
 
-    /* init */
-    bindICheck();
-    bindHandleCheckbox();
+    function bindDatepicker() {
+        var datepicker = $('.datepicker');
+        datepicker.datepicker('destroy');
+        datepicker.datepicker({
+            orientation: 'left bottom'
+        });
+    }
 
-    $('.datepicker').datepicker({
-        orientation: 'left bottom'
-    });
+    function initBinds(){
+        bindICheck();
+        bindHandleCheckbox();
+        bindDatepicker();
+    }
+
+    /* init */
+    initBinds();
 
     /* after ajax */
     $.nette.ext({
         load: function () {
-            bindICheck();
-            bindHandleCheckbox();
+            initBinds();
         }
     });
 
