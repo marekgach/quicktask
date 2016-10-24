@@ -26,14 +26,27 @@ class TaskPresenter extends BasePresenter
     /**
      * @param int $id
      */
+    public function handleCompleteTask($id)
+    {
+		$task = $this->taskRepository->getById($id);
+		if($task){
+			$task->setCompleted(TRUE);
+			$this->taskRepository->updateEntity($task);
+			$this->flashMessage('Task was completed', 'success');
+		} else {
+			$this->flashMessage('Task was not found', 'error');
+		}
+		
+		$this->redrawOrRedirect(['tasks', 'flashes']);
+    }
+
+    /**
+     * @param int $id
+     */
     public function handleDeleteTaskGroup($id)
     {
         $this->taskGroupRepository->delete($id);
-        if ($this->isAjax()) {
-            $this->redrawControl('taskGroups');
-        } else {
-            $this->redirect('this');
-        }
+		$this->redrawOrRedirect('taskGroups');
     }
 
     /**
@@ -97,5 +110,24 @@ class TaskPresenter extends BasePresenter
             $result[] = $item;
         }
         return $result;
+    }
+	
+	
+	/**
+	 * @param string|array $snippets
+	 * @param string $destination
+	 */
+	private function redrawOrRedirect($snippets, $destination = 'this')
+    {
+    	if($this->isAjax()){
+			if(!is_array($snippets)){
+				$snippets = [$snippets];
+			}
+			foreach($snippets as $snippet){
+				$this->redrawControl($snippet);
+			}
+		} else {
+			$this->redirect($destination);
+		}
     }
 }
