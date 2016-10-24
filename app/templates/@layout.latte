@@ -42,7 +42,7 @@
             	{snippet flashes}
 					{foreach $flashes as $flash}
 						<div class="alert alert-{$flash->type}" role="alert">
-							{$flash->message}
+							{$flash->message} <span class="text-muted">({(new DateTime)|date:'Y/m/d H:i:s'})</span>
 						</div>
 					{/foreach}
                 {/snippet}

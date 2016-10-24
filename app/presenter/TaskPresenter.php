@@ -117,7 +117,7 @@ class TaskPresenter extends BasePresenter
 	 * @param string|array $snippets
 	 * @param string $destination
 	 */
-	private function redrawOrRedirect($snippets, $destination = 'this')
+	public function redrawOrRedirect($snippets, $destination = 'this')
     {
     	if($this->isAjax()){
 			if(!is_array($snippets)){
