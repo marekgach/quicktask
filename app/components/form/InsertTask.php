@@ -54,7 +54,9 @@ class InsertTask extends Control
             ->setRequired('Please fill task name');
         $form->addText('date', 'Date')
             ->setRequired('Please fill task date');
-        $form->addHidden('idTaskGroup', $this->idTaskGroup);
+        $form->addSelect('taskGroup', 'Task group', $this->taskGroupRepository->getSelect())
+            ->setRequired('Please select task group')
+			->setDefaultValue($this->idTaskGroup);
         $form->addSubmit('submit', 'Add');
         $form->onSuccess[] = array($this, 'insertTaskFormSuccess');
         return $form;
@@ -66,7 +68,7 @@ class InsertTask extends Control
      */
     public function insertTaskFormSuccess(Form $form, $values)
     {
-        $taskGroup = $this->taskGroupRepository->getById($values->idTaskGroup);
+        $taskGroup = $this->taskGroupRepository->getById($values->taskGroup);
 
         $taskEntity = new Task();
         $taskEntity->setName($values->name);
@@ -75,7 +77,7 @@ class InsertTask extends Control
         $this->taskRepository->insert($taskEntity);
 		
 		if($this->presenter->isAjax()){
-			$form->setValues(['idTaskGroup' => $this->idTaskGroup], TRUE);
+			$form->setValues(['taskGroup' => $this->idTaskGroup], TRUE);
 			$this->redrawControl();
 		}
 	

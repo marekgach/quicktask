@@ -15,8 +15,18 @@ class TaskPresenter extends BasePresenter
     public $insertTaskGroupFactory;
     /** @var \App\Factories\Form\IInsertTaskFactory @inject */
     public $insertTaskFactory;
-    /** @var number */
-    protected $idTaskGroup;
+    /** @var \App\Factories\Form\IFilterTasksFactory @inject */
+    public $filterTasksFactory;
+    /**
+	 * @var number
+	 * @persistent
+	 */
+    public $idTaskGroup;
+    /**
+	 * @var array
+	 * @persistent
+	 */
+    public $filter = [];
 
     public function renderDefault()
     {
@@ -37,7 +47,7 @@ class TaskPresenter extends BasePresenter
 			$this->flashMessage('Task was not found', 'error');
 		}
 		
-		$this->redrawOrRedirect(['tasks', 'flashes']);
+		$this->redrawOrRedirect(array('tasks', 'flashes'));
     }
 
     /**
@@ -78,6 +88,17 @@ class TaskPresenter extends BasePresenter
     }
 
     /**
+     * @return \App\Components\Form\FilterTasks
+     */
+    protected function createComponentFilterTasksForm()
+    {
+        $control = $this->filterTasksFactory->create();
+        $control->setTaskGroupId($this->idTaskGroup);
+		$control->setFilter($this->filter);
+        return $control;
+    }
+
+    /**
      * @return array
      */
     protected function getTaskGroups()
@@ -100,7 +121,12 @@ class TaskPresenter extends BasePresenter
     protected function getTasks($idTaskGroup)
     {
         $result = array();
-        $tasks = $this->taskRepository->getByTaskGroup($idTaskGroup, ['date' => 'DESC']);
+		$criteria = array_merge(
+			$this->prepareTasksFilter(),
+			array('taskGroup' => $idTaskGroup)
+		);
+		
+        $tasks = $this->taskRepository->getBy($criteria, ['date' => 'DESC']);
         foreach ($tasks as $task) {
             $item = array();
             $item['id'] = $task->getId();
@@ -130,4 +156,17 @@ class TaskPresenter extends BasePresenter
 			$this->redirect($destination);
 		}
     }
+	
+	
+	/**
+	 * @return array
+	 */
+	private function prepareTasksFilter()
+	{
+		$filter = [];
+		if(array_key_exists('name', $this->filter)){
+			$filter['name LIKE'] = "%{$this->filter['name']}%";
+		}
+		return $filter;
+	}
 }

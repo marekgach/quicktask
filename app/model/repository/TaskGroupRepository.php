@@ -40,4 +40,17 @@ class TaskGroupRepository extends AbstractRepository
         $this->entityManager->persist($taskGroup);
         $this->entityManager->flush();
     }
+	
+	/**
+	 * @param array $criteria
+	 * @param string $value
+	 * @param string $key
+	 * @param array $orderBy
+	 * @return array
+	 */
+	public function getSelect($criteria = array(), $value = 'name',
+		$orderBy = array('name' => 'ASC'), $key = 'id')
+    {
+		return $this->taskGroup->findPairs($criteria, $value, $orderBy, $key);
+    }
 }
