@@ -5,6 +5,7 @@ use App\Model\Entity\Task;
 use App\Model\Entity\TaskGroup;
 use App\Model\Repository\TaskRepository;
 use App\Model\Repository\TaskGroupRepository;
+use App\Presenters\TaskPresenter;
 use Nette\Application\UI\Control;
 use Nette\Application\UI\Form;
 
@@ -53,9 +54,11 @@ class InsertTask extends Control
             ->setRequired('Please fill task name');
         $form->addText('date', 'Date')
             ->setRequired('Please fill task date');
-        $form->addHidden('idTaskGroup', $this->idTaskGroup);
+        $form->addSelect('taskGroup', 'Task group', $this->taskGroupRepository->getSelect())
+            ->setRequired('Please select task group')
+			->setDefaultValue($this->idTaskGroup);
         $form->addSubmit('submit', 'Add');
-        $form->onSuccess[] = array($this, 'insertTaskFromSuccess');
+        $form->onSuccess[] = array($this, 'insertTaskFormSuccess');
         return $form;
     }
 
@@ -63,16 +66,24 @@ class InsertTask extends Control
      * @param Form $form
      * @param $values
      */
-    public function insertTaskFromSuccess(Form $form, $values)
+    public function insertTaskFormSuccess(Form $form, $values)
     {
-        $taskGroup = $this->taskGroupRepository->getById($values->idTaskGroup);
+        $taskGroup = $this->taskGroupRepository->getById($values->taskGroup);
 
         $taskEntity = new Task();
         $taskEntity->setName($values->name);
         $taskEntity->setDate($values->date);
         $taskEntity->setTaskGroup($taskGroup);
         $this->taskRepository->insert($taskEntity);
-        $this->presenter->flashMessage('Task was created', 'success');
-        $this->redirect('this');
+		
+		if($this->presenter->isAjax()){
+			$form->setValues(array('taskGroup' => $this->idTaskGroup), TRUE);
+			$this->redrawControl();
+		}
+	
+		/** @var TaskPresenter $presenter */
+		$presenter = $this->presenter;
+        $presenter->flashMessage('Task was created', 'success');
+		$presenter->redrawOrRedirect(array('flashes', 'tasks'));
     }
 }

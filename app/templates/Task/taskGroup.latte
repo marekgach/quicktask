@@ -1,17 +1,19 @@
 {block content}
     {control insertTaskForm}
+    <hr>
+    {control filterTasksForm}
     <div class="row">
         <div class="col-md-12">
             {snippet tasks}
-                <ul class="list-group">
-                    {foreach $tasks as $task}
-                        <li class="list-group-item">
-                            <input type="checkbox" />
-                            <span>{$task['name']}</span>
-                            <span class="label label-info">{$task['date']|date:'d.m.Y'}</span>
-                        </li>
-                    {/foreach}
-                </ul>
+				<ul class="list-group">
+					{foreach $tasks as $task}
+						<li class="list-group-item">
+							<input type="checkbox" n:attr="checked => $task['completed']" class="handle" data-link="{link completeTask! $task['id']}" />
+							<span>{$task['name']}</span>
+							<span class="label label-info">{$task['date']|date:'d.m.Y'}</span>
+						</li>
+					{/foreach}
+				</ul>
             {/snippet}
         </div>
     </div>

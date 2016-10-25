@@ -23,14 +23,25 @@ class TaskRepository extends AbstractRepository
     {
         return $this->task->find($id);
     }
-
-    /**
-     * @param number $idTaskGroup
-     * @return Entity\Task[]
-     */
-    public function getByTaskGroup($idTaskGroup)
+	
+	/**
+	 * @param number $idTaskGroup
+	 * @param array|null $orderBy
+	 * @return Entity\Task[]
+	 */
+    public function getByTaskGroup($idTaskGroup, $orderBy = NULL)
     {
-        return $this->task->findBy(array('taskGroup' => $idTaskGroup));
+        return $this->task->findBy(array('taskGroup' => $idTaskGroup), $orderBy);
+    }
+	
+	/**
+	 * @param array $criteria
+	 * @param array|null $orderBy
+	 * @return Entity\Task[]
+	 */
+    public function getBy(array $criteria, $orderBy = NULL)
+    {
+        return $this->task->findBy($criteria, $orderBy);
     }
 
     /**

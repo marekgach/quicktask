@@ -15,8 +15,18 @@ class TaskPresenter extends BasePresenter
     public $insertTaskGroupFactory;
     /** @var \App\Factories\Form\IInsertTaskFactory @inject */
     public $insertTaskFactory;
-    /** @var number */
-    protected $idTaskGroup;
+    /** @var \App\Factories\Form\IFilterTasksFactory @inject */
+    public $filterTasksFactory;
+    /**
+	 * @var number
+	 * @persistent
+	 */
+    public $idTaskGroup;
+    /**
+	 * @var array
+	 * @persistent
+	 */
+    public $filter = array();
 
     public function renderDefault()
     {
@@ -26,14 +36,27 @@ class TaskPresenter extends BasePresenter
     /**
      * @param int $id
      */
+    public function handleCompleteTask($id)
+    {
+		$task = $this->taskRepository->getById($id);
+		if($task){
+			$task->setCompleted(TRUE);
+			$this->taskRepository->updateEntity($task);
+			$this->flashMessage('Task was completed', 'success');
+		} else {
+			$this->flashMessage('Task was not found', 'error');
+		}
+		
+		$this->redrawOrRedirect(array('tasks', 'flashes'));
+    }
+
+    /**
+     * @param int $id
+     */
     public function handleDeleteTaskGroup($id)
     {
         $this->taskGroupRepository->delete($id);
-        if ($this->isAjax()) {
-            $this->redrawControl('taskGroups');
-        } else {
-            $this->redirect('this');
-        }
+		$this->redrawOrRedirect('taskGroups');
     }
 
     /**
@@ -65,6 +88,17 @@ class TaskPresenter extends BasePresenter
     }
 
     /**
+     * @return \App\Components\Form\FilterTasks
+     */
+    protected function createComponentFilterTasksForm()
+    {
+        $control = $this->filterTasksFactory->create();
+        $control->setTaskGroupId($this->idTaskGroup);
+		$control->setFilter($this->filter);
+        return $control;
+    }
+
+    /**
      * @return array
      */
     protected function getTaskGroups()
@@ -87,7 +121,12 @@ class TaskPresenter extends BasePresenter
     protected function getTasks($idTaskGroup)
     {
         $result = array();
-        $tasks = $this->taskRepository->getByTaskGroup($idTaskGroup);
+		$criteria = array_merge(
+			$this->prepareTasksFilter(),
+			array('taskGroup' => $idTaskGroup)
+		);
+		
+        $tasks = $this->taskRepository->getBy($criteria, array('date' => 'DESC'));
         foreach ($tasks as $task) {
             $item = array();
             $item['id'] = $task->getId();
@@ -98,4 +137,36 @@ class TaskPresenter extends BasePresenter
         }
         return $result;
     }
+	
+	
+	/**
+	 * @param string|array $snippets
+	 * @param string $destination
+	 */
+	public function redrawOrRedirect($snippets, $destination = 'this')
+    {
+    	if($this->isAjax()){
+			if(!is_array($snippets)){
+				$snippets = array($snippets);
+			}
+			foreach($snippets as $snippet){
+				$this->redrawControl($snippet);
+			}
+		} else {
+			$this->redirect($destination);
+		}
+    }
+	
+	
+	/**
+	 * @return array
+	 */
+	private function prepareTasksFilter()
+	{
+		$filter = array();
+		if(array_key_exists('name', $this->filter)){
+			$filter['name LIKE'] = "%{$this->filter['name']}%";
+		}
+		return $filter;
+	}
 }
