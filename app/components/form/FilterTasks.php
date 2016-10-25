@@ -16,7 +16,7 @@ class FilterTasks extends Control
 	/** @var number */
     public $idTaskGroup;
 	/** @var array */
-    public $filter = [];
+    public $filter = array();
 
     /**
      * @param TaskRepository $taskRepository
@@ -71,6 +71,6 @@ class FilterTasks extends Control
      */
     public function filterTasksFormSuccess(Form $form, $values)
     {
-        $this->presenter->redirect('this', ['filter' => (array) $values]);
+        $this->presenter->redirect('this', array('filter' => (array) $values));
     }
 }

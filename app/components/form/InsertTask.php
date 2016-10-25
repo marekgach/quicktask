@@ -77,13 +77,13 @@ class InsertTask extends Control
         $this->taskRepository->insert($taskEntity);
 		
 		if($this->presenter->isAjax()){
-			$form->setValues(['taskGroup' => $this->idTaskGroup], TRUE);
+			$form->setValues(array('taskGroup' => $this->idTaskGroup), TRUE);
 			$this->redrawControl();
 		}
 	
 		/** @var TaskPresenter $presenter */
 		$presenter = $this->presenter;
         $presenter->flashMessage('Task was created', 'success');
-		$presenter->redrawOrRedirect(['flashes', 'tasks']);
+		$presenter->redrawOrRedirect(array('flashes', 'tasks'));
     }
 }

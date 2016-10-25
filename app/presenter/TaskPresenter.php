@@ -26,7 +26,7 @@ class TaskPresenter extends BasePresenter
 	 * @var array
 	 * @persistent
 	 */
-    public $filter = [];
+    public $filter = array();
 
     public function renderDefault()
     {
@@ -126,7 +126,7 @@ class TaskPresenter extends BasePresenter
 			array('taskGroup' => $idTaskGroup)
 		);
 		
-        $tasks = $this->taskRepository->getBy($criteria, ['date' => 'DESC']);
+        $tasks = $this->taskRepository->getBy($criteria, array('date' => 'DESC'));
         foreach ($tasks as $task) {
             $item = array();
             $item['id'] = $task->getId();
@@ -147,7 +147,7 @@ class TaskPresenter extends BasePresenter
     {
     	if($this->isAjax()){
 			if(!is_array($snippets)){
-				$snippets = [$snippets];
+				$snippets = array($snippets);
 			}
 			foreach($snippets as $snippet){
 				$this->redrawControl($snippet);
@@ -163,7 +163,7 @@ class TaskPresenter extends BasePresenter
 	 */
 	private function prepareTasksFilter()
 	{
-		$filter = [];
+		$filter = array();
 		if(array_key_exists('name', $this->filter)){
 			$filter['name LIKE'] = "%{$this->filter['name']}%";
 		}
