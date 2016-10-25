@@ -100,7 +100,7 @@ class TaskPresenter extends BasePresenter
     protected function getTasks($idTaskGroup)
     {
         $result = array();
-        $tasks = $this->taskRepository->getByTaskGroup($idTaskGroup);
+        $tasks = $this->taskRepository->getByTaskGroup($idTaskGroup, ['date' => 'DESC']);
         foreach ($tasks as $task) {
             $item = array();
             $item['id'] = $task->getId();
